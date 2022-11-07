@@ -13,31 +13,62 @@ provider "azurerm" {
 }
 
 resource "azurerm_servicebus_namespace" "this" {
-    name                = var.name
-    location            = var.location
-    resource_group_name = var.resource_group_name
-    sku                 = var.sku
-    dynamic "identity" {
-        for_each = var.identity
-        content {
-            type = identity.value.type
-            identity_ids = identity.value.identity_ids
-        }
+  name                = var.name
+  location            = var.location
+  resource_group_name = var.resource_group_name
+  sku                 = var.sku
+  dynamic "identity" {
+    for_each = var.identity
+    content {
+      type         = identity.value.type
+      identity_ids = identity.value.identity_ids
     }
-    capacity = var.capacity
-    dynamic "customer_managed_key" {
-        for_each = var.customer_managed_key
-        content {
-            key_vault_key_id = customer_managed_key.value.key_vault_key_id
-            identity_id = customer_managed_key.value.identity_id
-            infrastructure_encryption_enabled = customer_managed_key.value.infrastructure_encryption_enabled
-        }
+  }
+  capacity = var.capacity
+  dynamic "customer_managed_key" {
+    for_each = var.customer_managed_key
+    content {
+      key_vault_key_id                  = customer_managed_key.value.key_vault_key_id
+      identity_id                       = customer_managed_key.value.identity_id
+      infrastructure_encryption_enabled = customer_managed_key.value.infrastructure_encryption_enabled
     }
-    
-    local_auth_enabled = false
-    public_network_access_enabled = var.public_network_access_enabled
-    minimum_tls_version = var.minimum_tls_version
-    zone_redundant = var.zone_redundant
-    tags = var.tags
+  }
+
+  local_auth_enabled            = false
+  public_network_access_enabled = false
+  minimum_tls_version           = var.minimum_tls_version
+  zone_redundant                = var.zone_redundant
+  tags                          = var.tags
 }
 
+# Default deny ruleset
+resource "azurerm_servicebus_namespace_network_rule_set" "default_deny" {
+  namespace_id = azurerm_servicebus_namespace.this.id
+
+  default_action                = "Deny"
+  public_network_access_enabled = false
+  trusted_services_allowed      = var.trusted_services_allowed
+}
+
+# ruleset to deny public access but allow private subnets
+
+resource "azurerm_servicebus_namespace_network_rule_set" "allow_private_subnet" {
+  namespace_id = azurerm_servicebus_namespace.this.id
+
+  default_action                = var.default_action
+  public_network_access_enabled = false
+
+
+  trusted_services_allowed = var.trusted_services_allowed
+
+  ip_rules = var.ip_rules
+
+  dynamic "network_rules" {
+    for_each = var.network_rules
+    content {
+      subnet_id                            = network_rules.value.subnet_id
+      ignore_missing_vnet_service_endpoint = network_rules.value.ignore_missing_vnet_service_endpoint
+
+    }
+  }
+}

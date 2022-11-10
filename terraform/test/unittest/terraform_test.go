@@ -30,7 +30,7 @@ func TestServiceBus(t *testing.T) {
 	terraform.RequirePlannedValuesMapKeyExists(t, plan, "module.this.azurerm_servicebus_namespace.this")
 	// We convert it to a golang structure (optional step)
 	serviceBus := ServiceBus{}
-	err = Convert(plan.ResourcePlannedValuesMap["module.this.azurerm_servicebus_namespace.this"], serviceBus)
+	err = Convert(plan.ResourcePlannedValuesMap["module.this.azurerm_servicebus_namespace.this"], &serviceBus)
 	assert.Nil(t, err)
 	// We verify that LocalAuthEnabled is always false
 	t.Run("MOCK-AZR-SVB-01", func(t *testing.T) {
@@ -40,11 +40,11 @@ func TestServiceBus(t *testing.T) {
 
 // Helper function
 func Convert(resource *tfjson.StateResource, structure interface{}) error {
-	d, err := json.Marshal(resource)
+	d, err := json.Marshal(resource.AttributeValues)
 	if err != nil {
 		return fmt.Errorf("tests failed during json convert: %w", err)
 	}
-	err = json.Unmarshal(d, &structure)
+	err = json.Unmarshal(d, structure)
 	if err != nil {
 		return fmt.Errorf("tests failed during json convert: %v", err)
 	}

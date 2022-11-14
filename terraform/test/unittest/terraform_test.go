@@ -36,9 +36,14 @@ func TestServiceBus(t *testing.T) {
 	err = Convert(plan.ResourcePlannedValuesMap["module.this.azurerm_servicebus_namespace.this"], &serviceBus)
 	assert.Nil(t, err)
 	t.Logf("ServiceBusName: %v", serviceBus.Name)
-	// We verify that LocalAuthEnabled is always false
+	// We
 	t.Run("MOCK-AZR-SVB-01", func(t *testing.T) {
+		//verify that LocalAuthEnabled is always false
 		assert.False(t, serviceBus.LocalAuthEnabled)
+		// Verify that double encryption has been enabled and sku is premium
+		assert.True(t, serviceBus.CustomerManagedKeys[0].InfraEncryptionEnabled)
+		assert.Equal(t, serviceBus.Sku, "Premium")
+
 	})
 
 	defaultNetworkRuleSet := NetworkRuleSet{}
@@ -77,13 +82,22 @@ func Convert(resource *tfjson.StateResource, structure interface{}) error {
 
 // ServiceBus Helper structure
 type ServiceBus struct {
-	Name                   string `json:"name"`
-	Location               string `json:"location"`
-	LocalAuthEnabled       bool   `json:"local_auth_enabled"`
-	PublicNetAccessEnabled bool   `json:"public_network_access_enabled"`
+	Name                   string               `json:"name"`
+	Location               string               `json:"location"`
+	LocalAuthEnabled       bool                 `json:"local_auth_enabled"`
+	PublicNetAccessEnabled bool                 `json:"public_network_access_enabled"`
+	CustomerManagedKeys    []CustomerManagedKey `json:"customer_managed_key,omitempty"`
+	Sku                    string               `json:"sku"`
 }
 
-// NetworkRules struct
+// CustomerManagedKey
+type CustomerManagedKey struct {
+	IdentityId             string `json:"identity_id"`
+	InfraEncryptionEnabled bool   `json:"infrastructure_encryption_enabled"`
+	KeyVaultKeyId          string `json:"key_vault_key_id"`
+}
+
+// NetworkRules
 type NetworkRule struct {
 	SubnetId                         string `json:"subnet_id"`
 	IgnoreMissingVnetServiceEndpoint bool   `json:"ignore_missing_vnet_service_endpoint"`

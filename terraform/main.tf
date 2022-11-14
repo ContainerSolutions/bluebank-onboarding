@@ -16,7 +16,9 @@ resource "azurerm_servicebus_namespace" "this" {
   name                = var.name
   location            = var.location
   resource_group_name = var.resource_group_name
-  sku                 = var.sku
+  # az service bus namespace has to be premium to provide
+  # encryption of data at rest with az storage service encryption
+  sku                 = "Premium"
   dynamic "identity" {
     for_each = var.identity
     content {
@@ -25,12 +27,14 @@ resource "azurerm_servicebus_namespace" "this" {
     }
   }
   capacity = var.capacity
+  # customer managed key could be provided as a resource, but for this exercise, we'll read 
+  # from values file and check that infrastructure encryption has been enabled.
   dynamic "customer_managed_key" {
     for_each = var.customer_managed_key
     content {
       key_vault_key_id                  = customer_managed_key.value.key_vault_key_id
       identity_id                       = customer_managed_key.value.identity_id
-      infrastructure_encryption_enabled = customer_managed_key.value.infrastructure_encryption_enabled
+      infrastructure_encryption_enabled = true
     }
   }
 

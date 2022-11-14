@@ -37,7 +37,6 @@ variable "customer_managed_key" {
     condition     = length(var.customer_managed_key) < 2
     error_message = "Only one customer managed key can be configured."
   }
-  default = []
 }
 variable "identity" {
   type = list(object({

@@ -36,10 +36,16 @@ func TestServiceBus(t *testing.T) {
 	err = Convert(plan.ResourcePlannedValuesMap["module.this.azurerm_servicebus_namespace.this"], &serviceBus)
 	assert.Nil(t, err)
 	t.Logf("ServiceBusName: %v", serviceBus.Name)
-	// We
+
+	// Test req: MOCK-AZR-SVB-01
 	t.Run("MOCK-AZR-SVB-01", func(t *testing.T) {
 		//verify that LocalAuthEnabled is always false
 		assert.False(t, serviceBus.LocalAuthEnabled)
+
+	})
+
+	// Test req: MOCK-AZR-SVB-03
+	t.Run("MOCK-AZR-SVB-03", func(t *testing.T) {
 		// Verify that double encryption has been enabled and sku is premium
 		assert.True(t, serviceBus.CustomerManagedKeys[0].InfraEncryptionEnabled)
 		assert.Equal(t, serviceBus.Sku, "Premium")
@@ -51,15 +57,12 @@ func TestServiceBus(t *testing.T) {
 	// We convert it to a golang structure (optional step)
 	err = Convert(plan.ResourcePlannedValuesMap["module.this.azurerm_servicebus_namespace_network_rule_set.default_deny"], &defaultNetworkRuleSet)
 	assert.Nil(t, err)
-	// We verify that PublicNetAccessEnabled is always false
-	t.Run("MOCK-AZR-SVB-02", func(t *testing.T) {
-		assert.False(t, defaultNetworkRuleSet.PublicNetAccessEnabled)
-	})
-
 	allowNetworkRuleSet := NetworkRuleSet{}
 	err = Convert(plan.ResourcePlannedValuesMap["module.this.azurerm_servicebus_namespace_network_rule_set.allow_private_subnet"], &allowNetworkRuleSet)
 	assert.Nil(t, err)
+	// Tests for req: MOCK-AZR-SVB-02
 	t.Run("MOCK-AZR-SVB-02", func(t *testing.T) {
+		assert.False(t, defaultNetworkRuleSet.PublicNetAccessEnabled)
 		assert.NotEmpty(t, allowNetworkRuleSet.NetworkRules)
 		assert.Equal(t, allowNetworkRuleSet.IpRules[0], "10.1.0.0/24")
 		assert.True(t, allowNetworkRuleSet.NetworkRules[0].IgnoreMissingVnetServiceEndpoint)

@@ -40,3 +40,11 @@ resource "azurerm_servicebus_namespace" "this" {
     zone_redundant = var.zone_redundant
     tags = var.tags
 }
+
+# Ruleset to deny public access (https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/servicebus_namespace_network_rule_set)
+resource "azurerm_servicebus_namespace_network_rule_set" "deny" {
+  namespace_id = azurerm_servicebus_namespace.this.id
+
+  default_action = "Deny"
+  public_network_access_enabled = false
+}

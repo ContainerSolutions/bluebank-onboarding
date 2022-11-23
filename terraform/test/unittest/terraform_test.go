@@ -35,6 +35,7 @@ func TestServiceBus(t *testing.T) {
 	// We verify that LocalAuthEnabled is always false
 	t.Run("MOCK-AZR-SVB-01", func(t *testing.T) {
 		assert.False(t, serviceBus.LocalAuthEnabled)
+		assert.False(t, serviceBus.PublicNetworkAccessEnabled)
 	})
 }
 
@@ -56,4 +57,5 @@ type ServiceBus struct {
 	Name             string `json:"name"`
 	Location         string `json:"location"`
 	LocalAuthEnabled bool   `json:"local_auth_enabled"`
+	PublicNetworkAccessEnabled bool `json:"public_network_access_enabled"`
 }

@@ -40,4 +40,3 @@ resource "azurerm_servicebus_namespace" "this" {
     zone_redundant = var.zone_redundant
     tags = var.tags
 }
-

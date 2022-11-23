@@ -35,7 +35,7 @@ resource "azurerm_servicebus_namespace" "this" {
     }
     
     local_auth_enabled = false
-    public_network_access_enabled = var.public_network_access_enabled
+    public_network_access_enabled = false
     minimum_tls_version = var.minimum_tls_version
     zone_redundant = var.zone_redundant
     tags = var.tags

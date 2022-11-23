@@ -64,6 +64,9 @@ func TestServiceBusNetworkRuleSet(t *testing.T) {
 		// We verify that PublicNetworkAccessEnabled is always false
 		assert.False(t, serviceBusRuleSet.PublicNetworkAccessEnabled)
 	})
+
+	t.Run("MOCK-AZR-SVB-03", func(t *testing.T) {
+	})
 }
 
 // Helper function
@@ -81,13 +84,14 @@ func Convert(resource *tfjson.StateResource, structure interface{}) error {
 
 // Helper structure
 type ServiceBus struct {
-	Name             string `json:"name"`
-	Location         string `json:"location"`
-	LocalAuthEnabled bool   `json:"local_auth_enabled"`
-	PublicNetworkAccessEnabled bool `json:"public_network_access_enabled"`
+	Name                            string `json:"name"`
+	Location                        string `json:"location"`
+	LocalAuthEnabled                bool   `json:"local_auth_enabled"`
+	PublicNetworkAccessEnabled      bool   `json:"public_network_access_enabled"`
+	InfraStructureEncryptionEnabled bool   `json:"infrastructure_encryption_enabled"`
 }
 
 type ServiceBusRuleSet struct {
-	DefaultAction string `json:"default_action"`
-	PublicNetworkAccessEnabled bool `json:"public_network_access_enabled"`
+	DefaultAction              string `json:"default_action"`
+	PublicNetworkAccessEnabled bool   `json:"public_network_access_enabled"`
 }

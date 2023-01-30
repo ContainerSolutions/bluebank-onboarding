@@ -35,9 +35,16 @@ resource "azurerm_servicebus_namespace" "this" {
     }
     
     local_auth_enabled = false
-    public_network_access_enabled = var.public_network_access_enabled
+    public_network_access_enabled = false
     minimum_tls_version = var.minimum_tls_version
     zone_redundant = var.zone_redundant
     tags = var.tags
 }
 
+# Ruleset to deny public access (https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/servicebus_namespace_network_rule_set)
+resource "azurerm_servicebus_namespace_network_rule_set" "deny" {
+  namespace_id = azurerm_servicebus_namespace.this.id
+
+  default_action = "Deny"
+  public_network_access_enabled = false
+}
